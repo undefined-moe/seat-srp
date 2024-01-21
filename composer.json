@@ -31,7 +31,6 @@
         "eveseat/services": "^5.0.1",
         "eveseat/eveapi": "^5.0",
         "eveseat/web": "^5.0",
-        "eveseat/eseye": "^2.0",
         "recursivetree/seat-prices-core": "^1.0"
     }
 }
