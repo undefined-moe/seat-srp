@@ -9,7 +9,6 @@ namespace CryptaTech\Seat\SeatSrp\Models\Eve;
 
 use CryptaTech\Seat\SeatSrp\Models\KillMail;
 use CryptaTech\Seat\SeatSrp\Models\Sde\InvType;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class Insurance extends Model

@@ -11,7 +11,6 @@ use Seat\Eveapi\Jobs\Killmails\Detail;
 use Seat\Eveapi\Models\Killmails\Killmail as EveKillmail;
 use Seat\Eveapi\Models\Killmails\KillmailDetail;
 use Seat\Web\Http\Controllers\Controller;
-use stdClass;
 
 class SrpController extends Controller
 {
@@ -44,7 +43,7 @@ class SrpController extends Controller
 
         // dd($killmail);
 
-        if (!KillmailDetail::find($killmail->killmail_id))
+        if (! KillmailDetail::find($killmail->killmail_id))
         {
             Detail::dispatchSync($killmail->killmail_id, $killmail->killmail_hash);
         }
@@ -64,10 +63,9 @@ class SrpController extends Controller
 
         $totalKill = $this->getKillmailDetails($request);
 
-        if ($totalKill["price"]["error"] !== "None") {
-            return redirect()->back()->with('error', $totalKill["price"]["error"]);
+        if ($totalKill['price']['error'] !== 'None') {
+            return redirect()->back()->with('error', $totalKill['price']['error']);
         }
-
 
         return response()->json($totalKill);
     }
@@ -77,17 +75,17 @@ class SrpController extends Controller
     {
         $totalKill = $this->getKillmailDetails($request);
 
-        if ($totalKill["price"]["error"] !== "None") {
-            return redirect()->back()->with('error', $totalKill["price"]["error"]); // THIS DOESNT WORK!!
+        if ($totalKill['price']['error'] !== 'None') {
+            return redirect()->back()->with('error', $totalKill['price']['error']); // THIS DOESNT WORK!!
         }
 
         $quote = Quote::firstOrCreate(
-            ['killmail_id' => $totalKill["killId"]],
-            ['user' => $request->user()->id, 'value' => $totalKill["price"]["price"]]
+            ['killmail_id' => $totalKill['killId']],
+            ['user' => $request->user()->id, 'value' => $totalKill['price']['price']]
         );
         $quote->update();
 
-        $totalKill["quoteID"] = $quote->id;
+        $totalKill['quoteID'] = $quote->id;
 
         return response()->json($totalKill);
     }
@@ -98,23 +96,22 @@ class SrpController extends Controller
         $quote = Quote::find($request->input('srpQuoteID'));
 
         if ($quote->user !== $request->user()->id){
-            return redirect()->back()->with('error', "SRP Quote can only be accepted by creating user.");
+            return redirect()->back()->with('error', 'SRP Quote can only be accepted by creating user.');
         }
 
         KillMail::create([
-            'user_id'        => $quote->user,
+            'user_id' => $quote->user,
             'character_name' => $request->input('srpCharacterName'),
-            'kill_id'        => $quote->killmail_id,
-            'kill_token'     => $request->input('srpKillToken'),
-            'approved'       => 0,
-            'cost'           => $quote->value,
-            'type_id'        => $request->input('srpTypeId'),
-            'ship_type'      => $request->input('srpShipType'),
+            'kill_id' => $quote->killmail_id,
+            'kill_token' => $request->input('srpKillToken'),
+            'approved' => 0,
+            'cost' => $quote->value,
+            'type_id' => $request->input('srpTypeId'),
+            'ship_type' => $request->input('srpShipType'),
         ]);
 
-        if (!is_null($request->input('srpPingContent')) && $request->input('srpPingContent') != '')
+        if (! is_null($request->input('srpPingContent')) && $request->input('srpPingContent') != '')
             KillMail::addNote($request->input('srpKillId'), 'ping', $request->input('srpPingContent'));
-
 
         $quote->delete();
 
@@ -152,7 +149,7 @@ class SrpController extends Controller
         if (is_null($killmail))
             return response()->json(['msg' => sprintf('Unable to retrieve kill %s', $kill_id)], 404);
 
-        if (!is_null($killmail->ping()))
+        if (! is_null($killmail->ping()))
             return response()->json($killmail->ping());
 
         return response()->json(['msg' => sprintf('There are no ping information related to kill %s', $kill_id)], 204);
@@ -165,7 +162,7 @@ class SrpController extends Controller
         if (is_null($killmail))
             return response()->json(['msg' => sprintf('Unable to retrieve kill %s', $kill_id)], 404);
 
-        if (!is_null($killmail->reason()))
+        if (! is_null($killmail->reason()))
             return response()->json($killmail->reason());
 
         return response()->json(['msg' => sprintf('There is no reason information related to kill %s', $kill_id)], 204);

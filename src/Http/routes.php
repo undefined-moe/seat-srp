@@ -63,43 +63,43 @@ Route::group([
     ], function () {
 
         Route::get('/', [
-            'as'   => 'srp.request',
+            'as' => 'srp.request',
             'uses' => 'SrpController@srpGetRequests',
             'middleware' => 'can:srp.request',
         ]);
 
         Route::get('/getkillmail', [
-            'as'   => 'srp.getKillMail',
+            'as' => 'srp.getKillMail',
             'uses' => 'SrpController@srpGetKillMail',
             'middleware' => 'can:srp.request',
         ]);
 
         Route::get('/getkillmailquote', [
-            'as'   => 'srp.getKillMailQuote',
+            'as' => 'srp.getKillMailQuote',
             'uses' => 'SrpController@srpRequestQuote',
             'middleware' => 'can:srp.request',
         ]);
 
         Route::post('/savekillmail', [
-            'as'   => 'srp.saveKillMail',
+            'as' => 'srp.saveKillMail',
             'uses' => 'SrpController@srpSaveKillMail',
             'middleware' => 'can:srp.request',
         ]);
 
         Route::get('/admin', [
-            'as'   => 'srpadmin.list',
+            'as' => 'srpadmin.list',
             'uses' => 'SrpAdminController@srpGetKillMails',
             'middleware' => 'can:srp.settle',
         ]);
 
         Route::post('/admin/addreason', [
-            'as'   => 'srp.addReason',
+            'as' => 'srp.addReason',
             'uses' => 'SrpAdminController@srpAddReason',
             'middleware' => 'can:srp.settle',
         ]);
 
         Route::get('/admin/{kill_id}/{action}', [
-            'as'   => 'srpadmin.settle',
+            'as' => 'srpadmin.settle',
             'uses' => 'SrpAdminController@srpApprove',
             'middleware' => 'can:srp.settle',
         ])->where(['action' => 'Approve|Reject|Paid Out|Pending|Delete']);
@@ -129,49 +129,49 @@ Route::group([
         ]);
 
         Route::get('/about', [
-            'as'   => 'srp.about',
+            'as' => 'srp.about',
             'uses' => 'SrpController@getAboutView',
             'middleware' => 'can:srp.request',
         ]);
 
         Route::get('/instructions', [
-            'as'   => 'srp.instructions',
+            'as' => 'srp.instructions',
             'uses' => 'SrpController@getInstructionsView',
             'middleware' => 'can:srp.request',
         ]);
 
         Route::get('/test', [
-            'as'   => 'srp.testsrp',
+            'as' => 'srp.testsrp',
             'uses' => 'SrpAdminController@getTestView',
             'middleware' => 'can:srp.settings',
         ]);
 
         Route::get('/settings', [
-            'as'   => 'srp.settings',
+            'as' => 'srp.settings',
             'uses' => 'SrpAdminController@getSrpSettings',
             'middleware' => 'can:srp.settings',
         ]);
 
         Route::get('/settings/processdeletion', [
-            'as'   => 'srp.deletions',
+            'as' => 'srp.deletions',
             'uses' => 'SrpAdminController@runDeletions',
             'middleware' => 'can:srp.settings',
         ]);
 
         Route::get('/settings/truncatequotes', [
-            'as'   => 'srp.truncatequotes',
+            'as' => 'srp.truncatequotes',
             'uses' => 'SrpAdminController@truncateQuotes',
             'middleware' => 'can:srp.settings',
         ]);
 
         Route::get('/settings/processmissing', [
-            'as'   => 'srp.missings',
+            'as' => 'srp.missings',
             'uses' => 'SrpAdminController@runMissingSearch',
             'middleware' => 'can:srp.settings',
         ]);
 
         Route::post('/settings', [
-            'as'   => 'srp.savesettings',
+            'as' => 'srp.savesettings',
             'uses' => 'SrpAdminController@saveSrpSettings',
             'middleware' => 'can:srp.settings',
         ]);
@@ -192,17 +192,17 @@ Route::group([
             ]);
 
             Route::get('/types', [
-                'as' =>'srp.adv.type.get',
+                'as' => 'srp.adv.type.get',
                 'uses' => 'SrpAdminController@typesData',
             ]);
 
             Route::get('/groups', [
-                'as' =>'srp.adv.group.get',
+                'as' => 'srp.adv.group.get',
                 'uses' => 'SrpAdminController@groupsData',
             ]);
 
             Route::post('/defaults', [
-                'as'   => 'srp.saveadvdefault',
+                'as' => 'srp.saveadvdefault',
                 'uses' => 'SrpAdminController@saveAdvDefaultSettings',
                 'middleware' => 'can:srp.settings',
             ]);

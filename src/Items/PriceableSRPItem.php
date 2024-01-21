@@ -7,6 +7,7 @@ use Seat\Eveapi\Models\Sde\InvType;
 use Seat\Services\Contracts\HasTypeID;
 use Seat\Services\Contracts\IPriceable;
 use Seat\Services\Items\EveType;
+
 /**
  * A basic implementation od IPriceable.
  */
@@ -21,7 +22,7 @@ class PriceableSRPItem extends EveType implements IPriceable
      * @param  int|HasTypeID  $type_id  The eve type to be appraised
      * @param  float  $amount  The amount of this type to be appraised
      */
-    public function __construct(int|HasTypeID $type_id, int $flag, float $amount, float $modifier=1.0)
+    public function __construct(int|HasTypeID $type_id, int $flag, float $amount, float $modifier = 1.0)
     {
         parent::__construct($type_id);
         $this->price = 0;
@@ -52,7 +53,7 @@ class PriceableSRPItem extends EveType implements IPriceable
         }
 
         return SRPCategoryEnum::MISC;
-        
+
     }
 
     /**

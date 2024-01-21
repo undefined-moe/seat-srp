@@ -7,14 +7,11 @@ use CryptaTech\Seat\SeatSrp\Items\PriceableSRPItem;
 use CryptaTech\Seat\SeatSrp\Models\AdvRule;
 use CryptaTech\Seat\SeatSrp\Models\Eve\Insurance;
 use CryptaTech\Seat\SeatSrp\Models\Sde\InvFlag;
-
+use Illuminate\Support\Collection;
+use RecursiveTree\Seat\PricesCore\Exceptions\PriceProviderException;
+use RecursiveTree\Seat\PricesCore\Facades\PriceProviderSystem;
 use Seat\Eveapi\Models\Character\CharacterInfo;
 use Seat\Eveapi\Models\Killmails\Killmail;
-
-use Illuminate\Support\Collection;
-
-use RecursiveTree\Seat\PricesCore\Facades\PriceProviderSystem;
-use RecursiveTree\Seat\PricesCore\Exceptions\PriceProviderException;
 
 trait SrpManager
 {
@@ -40,46 +37,46 @@ trait SrpManager
         foreach ($killMail->victim->items as $item) {
             $searchedItem = $item;
             $slotName = InvFlag::find($item->pivot->flag);
-            if (!is_object($searchedItem)) {
+            if (! is_object($searchedItem)) {
             } else {
                 $priceitem = array_key_exists($searchedItem->typeID, $priceList) ? $priceList[$searchedItem->typeID] : new PriceableSRPItem($searchedItem, $item->pivot->flag, 0);
 
                 switch ($slotName->flagName) {
                     case 'Cargo':
                         $slots['cargo'][$searchedItem->typeID]['name'] = $searchedItem->typeName;
-                        if (!isset($slots['cargo'][$searchedItem->typeID]['qty']))
+                        if (! isset($slots['cargo'][$searchedItem->typeID]['qty']))
                             $slots['cargo'][$searchedItem->typeID]['qty'] = 0;
-                        if (!is_null($item->pivot->quantity_destroyed))
+                        if (! is_null($item->pivot->quantity_destroyed))
                             $slots['cargo'][$searchedItem->typeID]['qty'] += $item->pivot->quantity_destroyed;
-                        if (!is_null($item->pivot->quantity_dropped))
+                        if (! is_null($item->pivot->quantity_dropped))
                             $slots['cargo'][$searchedItem->typeID]['qty'] += $item->pivot->quantity_dropped;
                         break;
                     case 'DroneBay':
                         $slots['dronebay'][$searchedItem->typeID]['name'] = $searchedItem->typeName;
-                        if (!isset($slots['dronebay'][$searchedItem->typeID]['qty']))
+                        if (! isset($slots['dronebay'][$searchedItem->typeID]['qty']))
                             $slots['dronebay'][$searchedItem->typeID]['qty'] = 0;
-                        if (!is_null($item->pivot->quantity_destroyed))
+                        if (! is_null($item->pivot->quantity_destroyed))
                             $slots['dronebay'][$searchedItem->typeID]['qty'] += $item->pivot->quantity_destroyed;
-                        if (!is_null($item->pivot->quantity_dropped))
+                        if (! is_null($item->pivot->quantity_dropped))
                             $slots['dronebay'][$searchedItem->typeID]['qty'] += $item->pivot->quantity_dropped;
                         break;
                     default:
-                        if (!(preg_match('/(Charge|Script|[SML])$/', $searchedItem->typeName))) {
+                        if (! preg_match('/(Charge|Script|[SML])$/', $searchedItem->typeName)) {
                             $slots[$slotName->flagName]['id'] = $searchedItem->typeID;
                             $slots[$slotName->flagName]['name'] = $searchedItem->typeName;
-                            if (!isset($slots[$slotName->flagName]['qty']))
+                            if (! isset($slots[$slotName->flagName]['qty']))
                                 $slots[$slotName->flagName]['qty'] = 0;
-                            if (!is_null($item->pivot->quantity_destroyed))
+                            if (! is_null($item->pivot->quantity_destroyed))
                                 $slots[$slotName->flagName]['qty'] += $item->pivot->quantity_destroyed;
-                            if (!is_null($item->pivot->quantity_dropped))
+                            if (! is_null($item->pivot->quantity_dropped))
                                 $slots[$slotName->flagName]['qty'] += $item->pivot->quantity_dropped;
                         }
                         break;
                 }
                 // Yes all of this should be neater... Deal with it for now.
-                if (!is_null($item->pivot->quantity_destroyed))
+                if (! is_null($item->pivot->quantity_destroyed))
                     $priceitem->incrementAmount($item->pivot->quantity_destroyed);
-                if (!is_null($item->pivot->quantity_dropped))
+                if (! is_null($item->pivot->quantity_dropped))
                     $priceitem->incrementAmount($item->pivot->quantity_dropped);
                 $priceList[$searchedItem->typeID] = $priceitem;
                 // array_push($priceList, $priceitem);
@@ -100,7 +97,7 @@ trait SrpManager
         $pilot = CharacterInfo::find($killMail->victim->character_id);
 
         $slots['characterName'] = $killMail->victim->character_id;
-        if (!is_null($pilot))
+        if (! is_null($pilot))
             $slots['characterName'] = $pilot->name;
 
         $slots['killId'] = $killMail->killmail_id;
@@ -165,7 +162,7 @@ trait SrpManager
             return [
                 'price' => 0,
                 'rule' => $rule->rule_type,
-                'error' =>  $e->getMessage(),
+                'error' => $e->getMessage(),
                 'source' => $source,
                 'base_value' => $base_value,
                 'hull_percent' => $hull_percent,
@@ -186,7 +183,7 @@ trait SrpManager
 
         if ($deduct_insurance) {
             $ins = Insurance::where('type_id', $killmail->victim->ship_type_id)->where('Name', 'Platinum')->first();
-            if (!is_null($ins)) {
+            if (! is_null($ins)) {
                 $total = $total + $ins->cost - $ins->payout;
             }
         }
@@ -229,7 +226,7 @@ trait SrpManager
             'hull_percent' => $hull_percent,
             'cargo_percent' => $cargo_percent,
             'fit_percent' => $fit_percent,
-            'srp_price_cap'=> $price_cap,
+            'srp_price_cap' => $price_cap,
             'deduct_insurance' => $deduct_insurance,
         ]);
 

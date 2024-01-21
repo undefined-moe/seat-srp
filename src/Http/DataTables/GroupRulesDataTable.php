@@ -22,8 +22,8 @@
 
 namespace CryptaTech\Seat\SeatSrp\Http\DataTables;
 
-use Illuminate\Http\JsonResponse;
 use CryptaTech\Seat\SeatSrp\Models\AdvRule;
+use Illuminate\Http\JsonResponse;
 use Seat\Eveapi\Models\Sde\InvType;
 use Yajra\DataTables\Services\DataTable;
 

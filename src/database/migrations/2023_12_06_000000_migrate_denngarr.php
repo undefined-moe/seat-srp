@@ -26,6 +26,6 @@ class MigrateDenngarr extends Migration
     public function down()
     {
         // TODO: make this delete the settings, dont truncate tables as we dont know what else was added.
-        return;
+
     }
 }
