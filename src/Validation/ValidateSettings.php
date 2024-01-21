@@ -13,6 +13,7 @@ class ValidateSettings extends FormRequest
 
     public function rules()
     {
+        // TODO: include simple/adv and simple source here
         return [
             'webhook_url'    => 'url|present|nullable',
             'mention_role'   => 'string|present|nullable',

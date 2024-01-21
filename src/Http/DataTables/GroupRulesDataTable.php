@@ -53,6 +53,9 @@ class GroupRulesDataTable extends DataTable
             ->editColumn('deduct_insurance', function ($row) {
                 return $row->deduct_insurance > 0 ? 'Yes' : 'No';
             })
+            ->editColumn('price_source', function ($row) {
+                return $row->priceProviderInstance->name;
+            })
             ->rawColumns(['group', 'action'])
             ->toJson();
     }

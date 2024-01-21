@@ -24,7 +24,7 @@ class Quote extends Model
 
     protected $primaryKey = 'id';
 
-    protected $table = 'cryptatech_seat_srp_quote';
+    protected $table = 'cryptatech_seat_quotes';
 
     protected $fillable = [
         'killmail_id', 'user', 'value',
@@ -33,10 +33,5 @@ class Quote extends Model
     public function killmail()
     {
         return $this->hasOne(Killmail::class, 'killmail_id', 'killmail_id');
-    }
-
-    public function user()
-    {
-        return $this->hasOne(User::class, 'groupID', 'group_id');
     }
 }

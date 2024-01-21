@@ -14,5 +14,7 @@ disabled:
   - no_blank_lines_after_throw
   
 finder:
+  exclude:
+    - "tests"
   name:
     - "*.php"

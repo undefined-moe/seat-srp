@@ -104,6 +104,10 @@
                                         <th class="bg-light"><label class="label pull-right" style="font-size: 100%">Deduct Insurance?</label></th>
                                         <th class="bg-white"><label id="insurance"></label></th>
                                     </tr>
+                                    <tr>
+                                        <th class="bg-danger"><label class="label pull-right" style="font-size: 100%">Error Message</label></th>
+                                        <th class="bg-white"><label id="error"></label></th>
+                                    </tr>
                                 </thead>
                             </table>
                         </div>
@@ -149,15 +153,15 @@
                     $('#characterName').text(result["characterName"]);
                     $('#characterName').attr('data-id', result["characterName"]);
                     // id_to_names();
-
                     $('#type').text(result["price"]["rule"]);
                     $('#base').text(result["price"]["base_value"].toLocaleString() + " ISK");
                     $('#hull').text((result["price"]["hull_percent"] * 100).toLocaleString() + " %");
                     $('#fit').text((result["price"]["fit_percent"] * 100).toLocaleString() + " %");
                     $('#cargo').text((result["price"]["cargo_percent"] * 100).toLocaleString() + " %");
                     $('#insurance').text(result["price"]["deduct_insurance"]);
-                }
-                catch (err) {
+                    $('#error').text(result["price"]["error"]);
+
+                } catch (err) {
                     console.log(err);
                 }
                 ids_to_names();

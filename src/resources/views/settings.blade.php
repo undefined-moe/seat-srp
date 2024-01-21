@@ -37,6 +37,14 @@
                             </div>
                         </div>
                         <div class="form-group row">
+                            <label for="simple_source" class="col-sm-3 col-form-label">Simple Price Provider <i class="fas fa-info-circle" data-toggle="tooltip" data-html="true" data-delay='{ "show": 0, "hide": 1500 }' title="Manage price providers in the <a href='{{route('pricescore::settings')}}'>price provider settings</a>."></i></label>
+                            <div class="col-sm-8">
+                                <div class="input-group col-sm">
+                                    @include("pricescore::utils.instance_selector",["id"=>"simple_source","name"=>"simple_source","instance_id"=>$simplePriceId])
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
                             <label for="srp_method" class="col-sm-3 col-form-label">SRP Method</label>
                             <div class="form-check form-check-inline">
                                 @if (setting('cryptatech_seat_srp_advanced_srp', true) == "0")
@@ -70,7 +78,7 @@
                 </form>
             </div>
         </div>
-        
+
     </div>
 </div>
 
@@ -116,11 +124,10 @@
                                     </select>
                                 </div>
 
-                                <div class="form-group col-md">
-                                    <label for="type_source">Price Source</label>
-                                    <select class="form-control" id="type_source" required>
-                                        <option value="evepraisal">evepraisal</option>
-                                    </select>
+                                <div class="form-group">
+                                    <label for="default_source">Price Source</label>
+                                    @include("pricescore::utils.instance_selector",["id"=>"type_source","name"=>"type_source","instance_id"=>$advDefPriceId])
+                                    <small class="text-muted">Manage price providers in the <a href="{{route('pricescore::settings')}}">price provider settings</a>.</small>
                                 </div>
 
                                 <div class="form-group col-md">
@@ -235,11 +242,10 @@
                                     </select>
                                 </div>
 
-                                <div class="form-group col-md">
-                                    <label for="group_source">Price Source</label>
-                                    <select class="form-control" id="group_source" required>
-                                        <option value="evepraisal">evepraisal</option>
-                                    </select>
+                                <div class="form-group">
+                                    <label for="default_source">Price Source</label>
+                                    @include("pricescore::utils.instance_selector",["id"=>"group_source","name"=>"group_source","instance_id"=>$advDefPriceId])
+                                    <small class="text-muted">Manage price providers in the <a href="{{route('pricescore::settings')}}">price provider settings</a>.</small>
                                 </div>
 
                                 <div class="form-group col-md">
@@ -344,11 +350,10 @@
                             {{ csrf_field() }}
                             <div class="form-row">
 
-                                <div class="form-group col-md">
-                                    <label for="default_source">Price Source</label>
-                                    <select class="form-control" name="default_source" id="default_source" required>
-                                        <option value="evepraisal" >evepraisal</option>
-                                    </select>
+                                <div class="form-group">
+                                    <label for="default_source">Default Price Provider</label>
+                                    @include("pricescore::utils.instance_selector",["id"=>"default_source","name"=>"default_source","instance_id"=>$advDefPriceId])
+                                    <small class="text-muted">Manage price providers in the <a href="{{route('pricescore::settings')}}">price provider settings</a>.</small>
                                 </div>
 
                                 <div class="form-group col-md">

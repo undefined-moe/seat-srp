@@ -17,7 +17,7 @@ class ValidateRule extends FormRequest
             'rule_type' => 'string|present',
             'type_id'    => 'integer|required_if:rule_type,type',
             'group_id'    => 'integer|required_if:rule_type,group',
-            'source'   => 'string|present',
+            'source'   => 'integer|present',
             'base_value' => 'integer|present',
             'hull_percent' => 'integer|present',
             'fit_percent' => 'integer|present',

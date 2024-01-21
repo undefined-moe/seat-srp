@@ -15,12 +15,13 @@ class AddKillMail extends FormRequest
     {
         return [
             'srpCharacterName' => 'required|string',
-            'srpKillId' => 'unique:seat_srp_srp,kill_id|required|integer',
+            'srpKillId' => 'unique:cryptatech_seat_srp_srp,kill_id|required|integer',
             'srpKillToken' => 'required|string',
             'srpCost' => 'numeric',
             'srpShipType' => 'string',
             'srpTypeId' => 'required|integer',
             'srpPingContent' => 'nullable|string',
+            'srpQuoteID' => 'required|int|exists:cryptatech_seat_quotes,id',
         ];
     }
 }

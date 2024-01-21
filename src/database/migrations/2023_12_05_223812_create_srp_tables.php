@@ -20,9 +20,12 @@ class CreateSrpTables extends Migration
             $table->string('kill_token');
             $table->integer('approved');
             $table->double('cost');
+            $table->bigInteger('type_id');
             $table->string('ship_type');
             $table->string('approver')->nullable();
             $table->timestamps();
+
+            $table->index('type_id');
         });
 
         Schema::create('cryptatech_srp_insurances', function (Blueprint $table) {
@@ -55,7 +58,7 @@ class CreateSrpTables extends Migration
             $table->bigIncrements('id');
             $table->bigInteger('killmail_id')->unique();
             $table->unsignedInteger('user');
-            $table->float('value');
+            $table->double('value');
             $table->timestamps();
         });
     }

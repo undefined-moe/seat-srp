@@ -14,7 +14,7 @@ class AddReason extends FormRequest
     public function rules()
     {
         return [
-            'srpKillId' => 'exists:seat_srp_srp,kill_id|required|integer',
+            'srpKillId' => 'exists:cryptatech_seat_srp_srp,kill_id|required|integer',
             'srpReasonContent' => 'nullable|string',
         ];
     }

@@ -10,6 +10,7 @@ namespace CryptaTech\Seat\SeatSrp\Models;
 use CryptaTech\Seat\SeatSrp\Models\Sde\InvType;
 use Illuminate\Database\Eloquent\Model;
 use Seat\Eveapi\Models\Sde\InvGroup;
+use RecursiveTree\Seat\PricesCore\Models\PriceProviderInstance;
 
 class AdvRule extends Model
 {
@@ -32,5 +33,10 @@ class AdvRule extends Model
     public function group()
     {
         return $this->hasOne(InvGroup::class, 'groupID', 'group_id');
+    }
+
+    public function priceProviderInstance()
+    {
+        return $this->hasOne(PriceProviderInstance::class, 'id', 'price_source');
     }
 }

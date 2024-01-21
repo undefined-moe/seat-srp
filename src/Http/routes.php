@@ -74,6 +74,12 @@ Route::group([
             'middleware' => 'can:srp.request',
         ]);
 
+        Route::get('/getkillmailquote', [
+            'as'   => 'srp.getKillMailQuote',
+            'uses' => 'SrpController@srpRequestQuote',
+            'middleware' => 'can:srp.request',
+        ]);
+
         Route::post('/savekillmail', [
             'as'   => 'srp.saveKillMail',
             'uses' => 'SrpController@srpSaveKillMail',
@@ -149,6 +155,12 @@ Route::group([
         Route::get('/settings/processdeletion', [
             'as'   => 'srp.deletions',
             'uses' => 'SrpAdminController@runDeletions',
+            'middleware' => 'can:srp.settings',
+        ]);
+
+        Route::get('/settings/truncatequotes', [
+            'as'   => 'srp.truncatequotes',
+            'uses' => 'SrpAdminController@truncateQuotes',
             'middleware' => 'can:srp.settings',
         ]);
 

@@ -51,6 +51,9 @@ class TypeRulesDataTable extends DataTable
             ->editColumn('deduct_insurance', function ($row) {
                 return $row->deduct_insurance > 0 ? 'Yes' : 'No';
             })
+            ->editColumn('price_source', function ($row) {
+                return $row->priceProviderInstance->name;
+            })
             ->rawColumns(['type', 'action'])
             ->toJson();
     }
@@ -74,7 +77,7 @@ class TypeRulesDataTable extends DataTable
      */
     public function query()
     {
-        return AdvRule::where('rule_type', 'type');
+        return AdvRule::with('priceProviderInstance')->where('rule_type', 'type');
     }
 
     /**

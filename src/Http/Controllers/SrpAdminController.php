@@ -6,6 +6,7 @@ use CryptaTech\Seat\SeatSrp\Http\DataTables\GroupRulesDataTable;
 use CryptaTech\Seat\SeatSrp\Http\DataTables\TypeRulesDataTable;
 use CryptaTech\Seat\SeatSrp\Models\AdvRule;
 use CryptaTech\Seat\SeatSrp\Models\KillMail;
+use CryptaTech\Seat\SeatSrp\Models\Quote;
 use CryptaTech\Seat\SeatSrp\Validation\AddReason;
 use CryptaTech\Seat\SeatSrp\Validation\ValidateAdvancedSettings;
 use CryptaTech\Seat\SeatSrp\Validation\ValidateRule;
@@ -61,22 +62,22 @@ class SrpAdminController extends Controller
         $killmail = Killmail::find($kill_id);
 
         if (is_null($killmail))
-        return redirect()->back()
-            ->with('error', trans('srp::srp.not_found'));
+            return redirect()->back()
+                ->with('error', trans('srp::srp.not_found'));
 
         $reason = $killmail->reason();
-        if (! is_null($reason))
+        if (!is_null($reason))
             $reason->delete();
 
         KillMail::addNote($request->input('srpKillId'), 'reason', $request->input('srpReasonContent'));
 
         return redirect()->back()
-                         ->with('success', trans('srp::srp.note_updated'));
+            ->with('success', trans('srp::srp.note_updated'));
     }
 
     public function getSrpSettings()
     {
-        $rules = AdvRule::all();
+        $rules = AdvRule::with('priceProviderInstance')->get();
 
         $groups = InvGroup::where('categoryID', 6)->get();
         $types = InvType::whereIn('groupID', $groups->pluck('groupID')->all())->get();
@@ -84,7 +85,10 @@ class SrpAdminController extends Controller
         $type_rules = $rules->where('rule_type', 'type');
         $group_rules = $rules->where('rule_type', 'group');
 
-        return view('srp::settings', compact(['groups', 'types', 'type_rules', 'group_rules']));
+        $advDefPriceId = setting('cryptatech_seat_srp_advrule_def_source', true);
+        $simplePriceId = setting('cryptatech_seat_srp_simple_source', true);
+
+        return view('srp::settings', compact(['groups', 'types', 'type_rules', 'group_rules', 'advDefPriceId', 'simplePriceId']));
     }
 
     public function saveSrpSettings(ValidateSettings $request)
@@ -92,28 +96,32 @@ class SrpAdminController extends Controller
         setting(['cryptatech_seat_srp_webhook_url', $request->webhook_url], true);
         setting(['cryptatech_seat_srp_mention_role', $request->mention_role], true);
         setting(['cryptatech_seat_srp_advanced_srp', $request->srp_method], true);
+        setting(['cryptatech_seat_srp_simple_source', $request->simple_source], true);
 
         return redirect()->back()->with('success', 'SRP Settings have successfully been updated.');
     }
 
     public function saveSrpRule(ValidateRule $request)
     {
-        $rule = AdvRule::updateOrCreate([
-            'rule_type' => $request->rule_type,
-            'type_id' => $request->type_id,
-            'group_id' => $request->group_id,
-        ]);
+        $rule = AdvRule::updateOrCreate(
+            [
+                'rule_type' => $request->rule_type,
+                'type_id' => $request->type_id,
+                'group_id' => $request->group_id,
+            ],
+            [
+                'price_source' => $request->source,
+                'base_value' => $request->base_value,
+                'hull_percent' => $request->hull_percent,
+                'cargo_percent' => $request->cargo_percent,
+                'fit_percent' => $request->fit_percent,
+                'srp_price_cap' => $request->price_cap,
+                'deduct_insurance' => $request->deduct_insurance,
+            ]
+        );
 
 
-        $rule->update([
-            'price_source' => $request->source,
-            'base_value' => $request->base_value,
-            'hull_percent' => $request->hull_percent,
-            'cargo_percent' => $request->cargo_percent,
-            'fit_percent' => $request->fit_percent,
-            'srp_price_cap'=>$request->price_cap,
-            'deduct_insurance' => $request->deduct_insurance,
-        ]);
+        // $rule->update();
 
         $rule->save();
 
@@ -139,7 +147,6 @@ class SrpAdminController extends Controller
 
     public function saveAdvDefaultSettings(ValidateAdvancedSettings $request)
     {
-
         setting(['cryptatech_seat_srp_advrule_def_source', $request->default_source], true);
         setting(['cryptatech_seat_srp_advrule_def_base', $request->default_base], true);
         setting(['cryptatech_seat_srp_advrule_def_hull', $request->default_hull_pc], true);
@@ -181,14 +188,14 @@ class SrpAdminController extends Controller
         $missing = $missing->merge($mdv);
         $missing = $missing->merge($mda);
 
-        foreach($missing as $mis){
+        foreach ($missing as $mis) {
             $killmail = EveKillmail::firstOrCreate([
                 'killmail_id' => $mis->kill_id,
             ], [
                 'killmail_hash' => $mis->kill_token,
             ]);
-            if (! KillmailDetail::find($killmail->killmail_id))
-                    Detail::dispatch($killmail->killmail_id, $killmail->killmail_hash);
+            if (!KillmailDetail::find($killmail->killmail_id))
+                Detail::dispatch($killmail->killmail_id, $killmail->killmail_hash);
         }
 
         return json_encode(['dispatched' => $missing->count()]);
@@ -201,5 +208,12 @@ class SrpAdminController extends Controller
     public function showKillmailDetail(EveKillmail $killmail)
     {
         return view('web::common.killmails.modals.show.content', compact('killmail'));
+    }
+
+    public function truncateQuotes(Request $request)
+    {
+        Quote::truncate();
+
+        return redirect()->back()->with('success', 'Quotes Truncated');
     }
 }

@@ -2,20 +2,27 @@
 
 namespace CryptaTech\Seat\SeatSrp\Helpers;
 
+use CryptaTech\Seat\SeatSrp\Enum\SRPCategoryEnum;
+use CryptaTech\Seat\SeatSrp\Items\PriceableSRPItem;
 use CryptaTech\Seat\SeatSrp\Models\AdvRule;
 use CryptaTech\Seat\SeatSrp\Models\Eve\Insurance;
 use CryptaTech\Seat\SeatSrp\Models\Sde\InvFlag;
-use Exception;
-use GuzzleHttp\Client;
+
 use Seat\Eveapi\Models\Character\CharacterInfo;
 use Seat\Eveapi\Models\Killmails\Killmail;
-use stdClass;
+
+use Illuminate\Support\Collection;
+
+use RecursiveTree\Seat\PricesCore\Facades\PriceProviderSystem;
+use RecursiveTree\Seat\PricesCore\Exceptions\PriceProviderException;
 
 trait SrpManager
 {
 
-    public static $FIT_FLAGS = [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 87,
-        92, 93, 94, 95, 96, 97, 98, 99, 125, 126, 127, 128, 129, 130, 131, 132, 158, 159, 160, 161, 162, 163, ];
+    public static $FIT_FLAGS = [
+        11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 87,
+        92, 93, 94, 95, 96, 97, 98, 99, 125, 126, 127, 128, 129, 130, 131, 132, 158, 159, 160, 161, 162, 163,
+    ];
     public static $CARGO_FLAGS = [5, 90, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 148, 149, 151, 155, 176, 177, 179];
 
     private function srpPopulateSlots(Killmail $killMail): array
@@ -29,59 +36,71 @@ trait SrpManager
             'cargo' => [],
             'dronebay' => [],
         ];
-
+        // dd($killMail->victim->items);
         foreach ($killMail->victim->items as $item) {
             $searchedItem = $item;
             $slotName = InvFlag::find($item->pivot->flag);
-            if (! is_object($searchedItem)) {
+            if (!is_object($searchedItem)) {
             } else {
-                array_push($priceList, $searchedItem->typeName);
-                // dd($item->pivot);
+                $priceitem = array_key_exists($searchedItem->typeID, $priceList) ? $priceList[$searchedItem->typeID] : new PriceableSRPItem($searchedItem, $item->pivot->flag, 0);
+
                 switch ($slotName->flagName) {
                     case 'Cargo':
                         $slots['cargo'][$searchedItem->typeID]['name'] = $searchedItem->typeName;
-                        if (! isset($slots['cargo'][$searchedItem->typeID]['qty']))
+                        if (!isset($slots['cargo'][$searchedItem->typeID]['qty']))
                             $slots['cargo'][$searchedItem->typeID]['qty'] = 0;
-                        if (! is_null($item->pivot->quantity_destroyed))
+                        if (!is_null($item->pivot->quantity_destroyed))
                             $slots['cargo'][$searchedItem->typeID]['qty'] += $item->pivot->quantity_destroyed;
-                        if (! is_null($item->pivot->quantity_dropped))
+                        if (!is_null($item->pivot->quantity_dropped))
                             $slots['cargo'][$searchedItem->typeID]['qty'] += $item->pivot->quantity_dropped;
                         break;
                     case 'DroneBay':
                         $slots['dronebay'][$searchedItem->typeID]['name'] = $searchedItem->typeName;
-                        if (! isset($slots['dronebay'][$searchedItem->typeID]['qty']))
+                        if (!isset($slots['dronebay'][$searchedItem->typeID]['qty']))
                             $slots['dronebay'][$searchedItem->typeID]['qty'] = 0;
-                        if (! is_null($item->pivot->quantity_destroyed))
+                        if (!is_null($item->pivot->quantity_destroyed))
                             $slots['dronebay'][$searchedItem->typeID]['qty'] += $item->pivot->quantity_destroyed;
-                        if (! is_null($item->pivot->quantity_dropped))
+                        if (!is_null($item->pivot->quantity_dropped))
                             $slots['dronebay'][$searchedItem->typeID]['qty'] += $item->pivot->quantity_dropped;
                         break;
                     default:
-                        if (! (preg_match('/(Charge|Script|[SML])$/', $searchedItem->typeName))) {
+                        if (!(preg_match('/(Charge|Script|[SML])$/', $searchedItem->typeName))) {
                             $slots[$slotName->flagName]['id'] = $searchedItem->typeID;
                             $slots[$slotName->flagName]['name'] = $searchedItem->typeName;
-                            if (! isset($slots[$slotName->flagName]['qty']))
+                            if (!isset($slots[$slotName->flagName]['qty']))
                                 $slots[$slotName->flagName]['qty'] = 0;
-                            if (! is_null($item->pivot->quantity_destroyed))
+                            if (!is_null($item->pivot->quantity_destroyed))
                                 $slots[$slotName->flagName]['qty'] += $item->pivot->quantity_destroyed;
-                            if (! is_null($item->pivot->quantity_dropped))
+                            if (!is_null($item->pivot->quantity_dropped))
                                 $slots[$slotName->flagName]['qty'] += $item->pivot->quantity_dropped;
                         }
                         break;
                 }
+                // Yes all of this should be neater... Deal with it for now.
+                if (!is_null($item->pivot->quantity_destroyed))
+                    $priceitem->incrementAmount($item->pivot->quantity_destroyed);
+                if (!is_null($item->pivot->quantity_dropped))
+                    $priceitem->incrementAmount($item->pivot->quantity_dropped);
+                $priceList[$searchedItem->typeID] = $priceitem;
+                // array_push($priceList, $priceitem);
             }
         }
 
         $searchedItem = $killMail->victim->ship;
         $slots['typeId'] = $killMail->victim->ship->typeID;
         $slots['shipType'] = $searchedItem->typeName;
-        array_push($priceList, $searchedItem->typeName);
+        array_push($priceList, new PriceableSRPItem($searchedItem, 0, 1));
+
+        // dd($priceList, $slots);
+
+        $priceList = collect($priceList);
+
         $prices = $this->srpGetPrice($killMail, $priceList);
 
         $pilot = CharacterInfo::find($killMail->victim->character_id);
 
         $slots['characterName'] = $killMail->victim->character_id;
-        if (! is_null($pilot))
+        if (!is_null($pilot))
             $slots['characterName'] = $pilot->name;
 
         $slots['killId'] = $killMail->killmail_id;
@@ -90,7 +109,7 @@ trait SrpManager
         return $slots;
     }
 
-    private function srpGetPrice(Killmail $killmail, array $priceList): array
+    private function srpGetPrice(Killmail $killmail, Collection $priceList): array
     {
         // Switching logic between advanced and simple rules
         // Try advanced first, becasue if the setting hasnt been set it will be empty.
@@ -98,10 +117,10 @@ trait SrpManager
             return $this->srpGetAdvancedPrice($killmail, $priceList);
         }
 
-        return $this->srpGetSimplePrice($priceList);
+        return $this->srpGetSimplePrice($killmail, $priceList);
     }
 
-    private function srpGetAdvancedPrice(Killmail $killmail, array $priceList): array
+    private function srpGetAdvancedPrice(Killmail $killmail, Collection $priceList): array
     {
         // Start by checking if there is a type rule that matches the ship
         $rule = AdvRule::where('type_id', $killmail->victim->ship_type_id)->first();
@@ -115,65 +134,59 @@ trait SrpManager
         return $this->srpGetRulePrice($rule, $killmail, $priceList);
     }
 
-    private function srpGetRulePrice(AdvRule $rule, Killmail $killmail, array $priceList): array
+    private function srpGetRulePrice(AdvRule $rule, Killmail $killmail, Collection $priceList): array
     {
 
         $source = $rule->price_source;
         $base_value = $rule->base_value;
-        $hull_percent = $rule->hull_percent / 100;
-        $fit_percent = $rule->fit_percent / 100;
-        $cargo_percent = $rule->cargo_percent / 100;
+        $hull_percent = $rule->hull_percent;
+        $fit_percent = $rule->fit_percent;
+        $cargo_percent = $rule->cargo_percent;
         $deduct_insurance = $rule->deduct_insurance;
         $price_cap = $rule->srp_price_cap;
 
         $deduct_insurance = $deduct_insurance == '1' ? true : false;
 
-        $prices = [];
+        foreach ($priceList as $item) {
 
-        // Moot point for now.... But will expand later
-        switch ($source) {
-            case 'evepraisal':
-                $prices = $this->srpGetAppraisal($priceList)->appraisal->items;
-                break;
-            default:
-                // TODO handle this nicer
-                throw new Exception('BAD PRICE SOURCE');
-                break;
+            match ($item->getSRPCategory())
+            {
+                SRPCategoryEnum::SHIP => $item->setModifier($hull_percent),
+                SRPCategoryEnum::CARGO => $item->setModifier($cargo_percent),
+                SRPCategoryEnum::FITTING => $item->setModifier($fit_percent),
+                SRPCategoryEnum::MISC => $item->setModifier(0),
+            };
         }
 
-        $prices = collect($prices); // Handy to query the collection
-
-        // Hull Price
-        $hp = $prices->where('typeID', $killmail->victim->ship_type_id)->first();
-        $hp = is_null($hp) ? 0 : ($hp->prices->sell->percentile * $hull_percent);
-
-        // Fit Price (fit flags are any between 11 and 34, plus 87 for drone bay)
-        // Cargo Price (Cargo is flag = 5, fleet hangar is 155)
-        $fp = 0;
-        $cp = 0;
-        foreach ($killmail->victim->items as $item) {
-            // Fitted Item
-            if ((($item->pivot->flag >= 11) && ($item->pivot->flag <= 34)) || ($item->pivot->flag == 87)) {
-                $p = $prices->where('typeID', $item->typeID)->first();
-                $fp += is_null($p) ? 0 : $p->prices->sell->percentile;
-                continue;
-            }
-
-            // Cargo Item
-            if (($item->pivot->flag == 5) || ($item->pivot->flag == 155)) {
-                $p = $prices->where('typeID', $item->typeID)->first();
-                $cp += is_null($p) ? 0 : $p->prices->sell->percentile;
-                continue;
-            }
+        // Hydrate all the prices
+        try {
+            PriceProviderSystem::getPrices($rule->price_source, $priceList);
+        } catch (PriceProviderException $e) {
+            return [
+                'price' => 0,
+                'rule' => $rule->rule_type,
+                'error' =>  $e->getMessage(),
+                'source' => $source,
+                'base_value' => $base_value,
+                'hull_percent' => $hull_percent,
+                'fit_percent' => $fit_percent,
+                'cargo_percent' => $cargo_percent,
+                'deduct_insurance' => $deduct_insurance,
+            ];
+            // return redirect()->back()->with("error", "Failed to get prices from price provider: $message");
         }
-        $fp = $fp * $fit_percent;
-        $cp = $cp * $cargo_percent;
 
-        $total = $hp + $fp + $cp + $base_value;
+        $value = $priceList->sum(function (PriceableSRPItem $item) {
+            // Log::warning([$item->getTypeID(), $item->type()->typeName, $item->getPrice(), $item->getAmount(), $item->getSRPPrice()]);
+            return $item->getSRPPrice();
+        });
+        // dd($priceList, $value);
 
-        if($deduct_insurance) {
+        $total = $value + $base_value;
+
+        if ($deduct_insurance) {
             $ins = Insurance::where('type_id', $killmail->victim->ship_type_id)->where('Name', 'Platinum')->first();
-            if(! is_null($ins)){
+            if (!is_null($ins)) {
                 $total = $total + $ins->cost - $ins->payout;
             }
         }
@@ -181,12 +194,13 @@ trait SrpManager
         $total = round($total, 2);
 
         //apply price cap
-        if($price_cap!==null && $total > $price_cap){
+        if ($price_cap !== null && $total > $price_cap) {
             $total = $price_cap;
         }
 
         return [
             'price' => $total,
+            'error' => 'None',
             'rule' => $rule->rule_type,
             'source' => $source,
             'base_value' => $base_value,
@@ -197,10 +211,10 @@ trait SrpManager
         ];
     }
 
-    private function srpGetDefaultRulePrice(Killmail $killmail, array $priceList): array
+    private function srpGetDefaultRulePrice(Killmail $killmail, Collection $priceList): array
     {
 
-        $source = 'evepraisal';
+        $source = setting('cryptatech_seat_srp_advrule_def_source', true) ? setting('cryptatech_seat_srp_advrule_def_source', true) : 0;
         $base_value = setting('cryptatech_seat_srp_advrule_def_base', true) ? setting('cryptatech_seat_srp_advrule_def_base', true) : 0;
         $hull_percent = setting('cryptatech_seat_srp_advrule_def_hull', true) ? setting('cryptatech_seat_srp_advrule_def_hull', true) / 100 : 0;
         $fit_percent = setting('cryptatech_seat_srp_advrule_def_fit', true) ? setting('cryptatech_seat_srp_advrule_def_fit', true) / 100 : 0;
@@ -208,97 +222,33 @@ trait SrpManager
         $deduct_insurance = setting('cryptatech_seat_srp_advrule_def_ins', true) ? setting('cryptatech_seat_srp_advrule_def_ins', true) : 0;
         $price_cap = setting('cryptatech_seat_srp_advrule_def_price_cap', true) ? intval(setting('cryptatech_seat_srp_advrule_def_price_cap', true)) : null;
 
-        $deduct_insurance = $deduct_insurance == '1' ? true : false;
-
-        $prices = [];
-
-        // Moot point for now.... But will expand later
-        switch ($source) {
-            case 'evepraisal':
-                $prices = $this->srpGetAppraisal($priceList)->appraisal->items;
-        }
-
-        $prices = collect($prices); // Handy to query the collection
-
-        // Hull Price
-        $hp = $prices->where('typeID', $killmail->victim->ship_type_id)->first();
-        $hp = is_null($hp) ? 0 : ($hp->prices->sell->percentile * $hull_percent);
-
-        // Fit Price (fit flags are any between 11 and 34, plus 87 for drone bay)
-        // Cargo Price (Cargo is flag = 5, fleet hangar is 155)
-        $fp = 0;
-        $cp = 0;
-        foreach ($killmail->victim->items as $item) {
-            // Fitted Item
-            if (in_array($item->pivot->flag, SrpManager::$FIT_FLAGS)) {
-                $p = $prices->where('typeID', $item->typeID)->first();
-                $fp += is_null($p) ? 0 : $p->prices->sell->percentile;
-                continue;
-            }
-
-            // Cargo Item
-            if (in_array($item->pivot->flag, SrpManager::$CARGO_FLAGS)) {
-                $p = $prices->where('typeID', $item->typeID)->first();
-                $cp += is_null($p) ? 0 : $p->prices->sell->percentile;
-                continue;
-            }
-        }
-        $fp = $fp * $fit_percent;
-        $cp = $cp * $cargo_percent;
-
-        $total = round($hp + $fp + $cp + $base_value, 2);
-
-        if($deduct_insurance) {
-            $ins = Insurance::where('type_id', $killmail->victim->ship_type_id)->where('Name', 'Platinum')->first();
-            if(! is_null($ins)){
-                $total = $total + $ins->cost - $ins->payout;
-            }
-        }
-
-        //apply price cap
-        if($price_cap!==null && $total > $price_cap){
-            $total = $price_cap;
-        }
-
-        return [
-            'price' => $total,
-            'rule' => 'default',
-            'source' => $source,
+        $rule = new AdvRule([
+            'rule_type' => 'default',
+            'price_source' => $source,
             'base_value' => $base_value,
             'hull_percent' => $hull_percent,
-            'fit_percent' => $fit_percent,
             'cargo_percent' => $cargo_percent,
+            'fit_percent' => $fit_percent,
+            'srp_price_cap'=> $price_cap,
             'deduct_insurance' => $deduct_insurance,
-        ];
+        ]);
+
+        return $this->srpGetRulePrice($rule, $killmail, $priceList);
+
     }
 
-    private function srpGetSimplePrice(array $priceList): array
+    private function srpGetSimplePrice(Killmail $killmail, Collection $priceList): array
     {
-        return ['price' => $this->srpGetAppraisal($priceList)->appraisal->totals->sell, 'rule' => 'simple'];
-    }
+        $rule = new AdvRule([
+            'rule_type' => 'simple',
+            'price_source' => setting('cryptatech_seat_srp_simple_source', true),
+            'base_value' => 0,
+            'hull_percent' => 1,
+            'cargo_percent' => 1,
+            'fit_percent' => 1,
+            'deduct_insurance' => 0,
+        ]);
 
-    /*
-     * TODO - Move to nicer evepraisal method.
-     */
-    private function srpGetAppraisal(array $priceList): stdClass
-    {
-
-        $partsList = implode("\n", $priceList);
-
-        $response = (new Client())
-            ->request('POST', 'http://evepraisal.com/appraisal.json?market=jita', [
-                'multipart' => [
-                    [
-                        'name' => 'uploadappraisal',
-                        'contents' => $partsList,
-                        'filename' => 'notme',
-                        'headers' => [
-                            'Content-Type' => 'text/plain',
-                        ],
-                    ],
-                ],
-            ]);
-
-        return json_decode($response->getBody()->getContents());
+        return $this->srpGetRulePrice($rule, $killmail, $priceList);
     }
 }

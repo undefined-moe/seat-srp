@@ -36,6 +36,7 @@
             <input type="hidden" class="form-control" id="srpCost" name="srpCost" value="" />
             <input type="hidden" class="form-control" id="srpKillId" name="srpKillId" value="" />
             <input type="hidden" class="form-control" id="srpKillToken" name="srpKillToken" value="" />
+            <input type="hidden" class="form-control" id="srpQuoteID" name="srpQuoteID" value="" />
             {{ csrf_field() }}
         </div>
     </form>
@@ -346,7 +347,7 @@
 
         $.ajax({
             headers: function() {},
-            url: "{{ route('srp.getKillMail') }}",
+            url: "{{ route('srp.getKillMailQuote') }}",
             dataType: 'json',
             data: 'km=' + encodeURIComponent($('#killMailUrl').val()),
             timeout: 10000,
@@ -398,7 +399,8 @@
                 $('#srpCharacterName').val(result["characterName"]);
                 $('#srpCost').val(result["price"]["price"]);
                 $('#srpShipType').val(result["shipType"]);
-                $('#srpTypeId').val(result["typeId"])
+                $('#srpTypeId').val(result["typeId"]);
+                $('#srpQuoteID').val(result["quoteID"]);
             } else {
                 $('.overlay').hide();
                 $('#killMailUrl').append("Killmail not Found");
