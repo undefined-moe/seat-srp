@@ -10,42 +10,21 @@ If you have issues with this, you can contact me on Eve as **Crypta Electrica**,
 
 ## Quick Installation:
 
-In your seat directory (By default:  /var/www/seat), type the following:
+Please see the SeAT docs for installation instructions [HERE](https://eveseat.github.io/docs/community_packages/).
 
-```
-php artisan down
-composer require cryptatech/seat-srp
-```
-
-(You can skip this step if you are running 3.x)
-After a successful installation, you can include the actual plugin by editing **config/app.php** and adding the following after:
-
-```
-        /*
-         * Package Service Providers...
-         */
-```
-add
-```
-        CryptaTech\Seat\SeatSrp\SrpServiceProvider::class
-```
-
-and save the file.  Now you're ready to tell SeAT how to use the plugin:
-
-```
-php artisan vendor:publish --force
-php artisan migrate
-
-php artisan up
-```
+The composer string to use is `cryptatech/seat-srp`
 
 And now, when you log into SeAT, you should see a 'Ship Replacement Program' link on the left.
+
+## Price Provider Setup
+
+In order to use this plugin you must have configured at least one PriceProvider. See [here](https://github.com/recursivetree/seat-prices-core) for available providers.
 
 ## SRP Payout Calculations
 
 ### Simple SRP
 
-By default, the application is configured in simple mode. In this mode, the SRP payout is calculated by using the evepraisal value returned from Jita sell for the whole killmail.
+By default, the application is configured in simple mode. In this mode, the SRP payout is calculated by using the for the whole killmail.
 
 ### Advanced SRP
 
