@@ -32,55 +32,68 @@ class SrpMetricsApiController extends ApiController
      *          {"SeAT Role": "can:srp.settle"},
      *          {"ApiKeyAuth": {}}
      *      },
+     *
      *      @OA\Parameter(
      *          name="status",
      *          description="SRP Processing Status",
      *          required=true,
+     *
      *          @OA\Schema(
      *              type="string"
      *          ),
      *          in="path"
      *      ),
+     *
      *     @OA\Parameter(
      *          name="limit",
      *          description="record limit",
      *          required=false,
+     *
      *          @OA\Schema(
      *              type="integer"
      *          ),
      *          in="path"
      *      ),
+     *
      *      @OA\Response(response=200, description="Successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  type="array",
      *                  property="dt",
      *                  description="Date in YYYY-MM-DD format, always reverting to the first day of the month",
+     *
      *                  @OA\Items(
      *                      type="string",
      *                      format="date"
      *                  )
      *              ),
+     *
      *              @OA\Property(
      *                  type="array",
      *                  property="payouts",
      *                  description="ISK Payouts for SRP Requests",
+     *
      *                  @OA\Items(
      *                      type="number",
      *                      format="float"
      *                  )
      *              ),
+     *
      *              @OA\Property(
      *                  type="array",
      *                  property="requests",
      *                  description="Number of SRP Requests",
+     *
      *                  @OA\Items(
      *                      type="integer"
      *                  )
      *              )
      *          )
      *      ),
+     *
      *      @OA\Response(response=400, description="Bad request"),
      *      @OA\Response(response=401, description="Unauthorized"),
      *     )
@@ -120,36 +133,45 @@ class SrpMetricsApiController extends ApiController
      *          {"SeAT Role": "can:srp.settle"},
      *          {"ApiKeyAuth": {}}
      *      },
+     *
      *     @OA\Parameter(
      *          name="status",
      *          description="SRP Processing Status",
      *          required=true,
+     *
      *          @OA\Schema(
      *              type="string"
      *          ),
      *          in="path"
      *      ),
+     *
      *     @OA\Parameter(
      *          name="group_id",
      *          description="SeAT User Id",
      *          required=true,
+     *
      *          @OA\Schema(
      *              type="integer"
      *          ),
      *          in="path"
      *      ),
+     *
      *      @OA\Parameter(
      *          name="limit",
      *          description="record limit",
      *          required=false,
+     *
      *          @OA\Schema(
      *              type="integer"
      *          ),
      *          in="path"
      *      ),
+     *
      *      @OA\Response(response=200, description="Successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  type="object",
      *                  property="summary",
@@ -158,29 +180,35 @@ class SrpMetricsApiController extends ApiController
      *                      type="array",
      *                      property="dt",
      *                      description="Date in YYYY-MM-DD format, always reverting to the first day of the month",
+     *
      *                      @OA\Items(
      *                          type="string",
      *                          format="date"
      *                      )
      *                  ),
+     *
      *                  @OA\Property(
      *                      type="array",
      *                      property="payouts",
      *                      description="ISK Payouts for SRP Requests",
+     *
      *                      @OA\Items(
      *                          type="number",
      *                          format="float"
      *                      )
      *                  ),
+     *
      *                  @OA\Property(
      *                      type="array",
      *                      property="requests",
      *                      description="Numbner of SRP Requests",
+     *
      *                      @OA\Items(
      *                          type="integer"
      *                      )
      *                  ),
      *              ),
+     *
      *              @OA\Property(
      *                  type="object",
      *                  property="ships",
@@ -189,23 +217,28 @@ class SrpMetricsApiController extends ApiController
      *                      type="array",
      *                      property="ship",
      *                      description="List of Top Ships by SRP Payouts",
+     *
      *                      @OA\Items(
      *                          type="string"
      *                      )
      *                  ),
+     *
      *                  @OA\Property(
      *                      type="array",
      *                      property="payouts",
      *                      description="ISK Payouts for SRP Requests",
+     *
      *                      @OA\Items(
      *                          type="number",
      *                          format="float"
      *                      )
      *                  ),
+     *
      *                  @OA\Property(
      *                      type="array",
      *                      property="requests",
      *                      description="Numbner of SRP Requests",
+     *
      *                      @OA\Items(
      *                          type="integer"
      *                      )
@@ -213,6 +246,7 @@ class SrpMetricsApiController extends ApiController
      *              ),
      *          )
      *      ),
+     *
      *      @OA\Response(response=400, description="Bad request"),
      *      @OA\Response(response=401, description="Unauthorized"),
      *      @OA\Response(response=404, description="User Id not found"),
@@ -272,54 +306,67 @@ class SrpMetricsApiController extends ApiController
      *          {"SeAT Role": "can:srp.settle"},
      *          {"ApiKeyAuth": {}}
      *      },
+     *
      *      @OA\Parameter(
      *          name="status",
      *          description="SRP Processing Status",
      *          required=true,
+     *
      *          @OA\Schema(
      *              type="string"
      *          ),
      *          in="path"
      *      ),
+     *
      *      @OA\Parameter(
      *          name="limit",
      *          description="record limit",
      *          required=false,
+     *
      *          @OA\Schema(
      *              type="integer"
      *          ),
      *          in="path"
      *      ),
+     *
      *      @OA\Response(response=200, description="Successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  type="array",
      *                  property="ships",
      *                  description="List of Top Ships by SRP Payouts",
+     *
      *                  @OA\Items(
      *                      type="string"
      *                  )
      *              ),
+     *
      *              @OA\Property(
      *                  type="array",
      *                  property="payouts",
      *                  description="ISK Payouts for SRP Requests",
+     *
      *                  @OA\Items(
      *                      type="number",
      *                      format="float"
      *                  )
      *              ),
+     *
      *              @OA\Property(
      *                  type="array",
      *                  property="requests",
      *                  description="Numbner of SRP Requests",
+     *
      *                  @OA\Items(
      *                      type="integer"
      *                  )
      *              )
      *          )
      *      ),
+     *
      *      @OA\Response(response=400, description="Bad request"),
      *      @OA\Response(response=401, description="Unauthorized"),
      *     )
@@ -359,55 +406,68 @@ class SrpMetricsApiController extends ApiController
      *          {"SeAT Role": "can:srp.settle"},
      *          {"ApiKeyAuth": {}}
      *      },
+     *
      *      @OA\Parameter(
      *          name="status",
      *          description="SRP Processing Status",
      *          required=true,
+     *
      *          @OA\Schema(
      *              type="string"
      *          ),
      *          in="path"
      *      ),
+     *
      *      @OA\Parameter(
      *          name="limit",
      *          description="record limit",
      *          required=false,
+     *
      *          @OA\Schema(
      *              type="integer"
      *          ),
      *          in="path"
      *      ),
+     *
      *      @OA\Response(response=200, description="Successful operation",
+     *
      *          @OA\JsonContent(
      *              type="object",
+     *
      *              @OA\Property(
      *                  type="array",
      *                  property="dt",
      *                  description="Date in YYYY-MM-DD format, always reverting to the first day of the month",
+     *
      *                  @OA\Items(
      *                      type="string",
      *                      format="date"
      *                  )
      *              ),
+     *
      *              @OA\Property(
      *                  type="array",
      *                  property="payouts",
      *                  description="ISK Payouts for SRP Requests",
+     *
      *                  @OA\Items(
      *                      type="number",
      *                      format="float"
      *                  )
      *              ),
+     *
      *              @OA\Property(
      *                  type="array",
      *                  property="requests",
      *                  description="Numbner of SRP Requests",
+     *
      *                  @OA\Items(
      *                      type="integer"
      *                  )
      *              )
      *          )
      *      ),
+     *
      *      @OA\Response(response=400, description="Bad request"),
      *      @OA\Response(response=401, description="Unauthorized"),
      *     )

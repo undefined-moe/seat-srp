@@ -66,7 +66,7 @@ class SrpAdminController extends Controller
                 ->with('error', trans('srp::srp.not_found'));
 
         $reason = $killmail->reason();
-        if (!is_null($reason))
+        if (! is_null($reason))
             $reason->delete();
 
         KillMail::addNote($request->input('srpKillId'), 'reason', $request->input('srpReasonContent'));
@@ -119,7 +119,6 @@ class SrpAdminController extends Controller
                 'deduct_insurance' => $request->deduct_insurance,
             ]
         );
-
 
         // $rule->update();
 
@@ -194,7 +193,7 @@ class SrpAdminController extends Controller
             ], [
                 'killmail_hash' => $mis->kill_token,
             ]);
-            if (!KillmailDetail::find($killmail->killmail_id))
+            if (! KillmailDetail::find($killmail->killmail_id))
                 Detail::dispatch($killmail->killmail_id, $killmail->killmail_hash);
         }
 

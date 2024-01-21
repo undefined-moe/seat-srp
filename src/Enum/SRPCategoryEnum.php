@@ -2,7 +2,7 @@
 
 namespace CryptaTech\Seat\SeatSrp\Enum;
 
-enum SRPCategoryEnum:int
+enum SRPCategoryEnum: int
 {
     case MISC = -1;
     case SHIP = 0;

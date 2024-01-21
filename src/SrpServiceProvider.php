@@ -68,7 +68,7 @@ class SrpServiceProvider extends AbstractSeatPlugin
     public function add_publications()
     {
         $this->publishes([
-            __DIR__ . '/resources/assets'     => public_path('web'),
+            __DIR__ . '/resources/assets' => public_path('web'),
         ]);
     }
 

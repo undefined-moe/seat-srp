@@ -9,8 +9,8 @@ namespace CryptaTech\Seat\SeatSrp\Models;
 
 use CryptaTech\Seat\SeatSrp\Models\Sde\InvType;
 use Illuminate\Database\Eloquent\Model;
-use Seat\Eveapi\Models\Sde\InvGroup;
 use RecursiveTree\Seat\PricesCore\Models\PriceProviderInstance;
+use Seat\Eveapi\Models\Sde\InvGroup;
 
 class AdvRule extends Model
 {

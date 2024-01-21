@@ -43,10 +43,10 @@ class UpdateEsiInsurance extends EsiBase
 
                 Insurance::updateOrCreate([
                     'type_id' => $entry->type_id,
-                    'name'    => $level->name,
+                    'name' => $level->name,
                 ], [
-                    'cost'    => $level->cost,
-                    'payout'  => $level->payout,
+                    'cost' => $level->cost,
+                    'payout' => $level->payout,
                 ]);
 
             }

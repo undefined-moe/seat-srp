@@ -14,12 +14,12 @@ class ValidateAdvancedSettings extends FormRequest
     public function rules()
     {
         return [
-            'default_source'    => 'integer|present',
-            'default_base'      => 'integer|present',
-            'default_hull_pc'   => 'integer|present',
-            'default_fit_pc'    => 'integer|present',
-            'default_cargo_pc'  => 'integer|present',
-            'default_price_cap'         => 'integer|present|nullable'
+            'default_source' => 'integer|present',
+            'default_base' => 'integer|present',
+            'default_hull_pc' => 'integer|present',
+            'default_fit_pc' => 'integer|present',
+            'default_cargo_pc' => 'integer|present',
+            'default_price_cap' => 'integer|present|nullable',
         ];
     }
 }
