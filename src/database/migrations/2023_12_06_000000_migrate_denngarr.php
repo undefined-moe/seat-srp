@@ -13,7 +13,10 @@ class MigrateDenngarr extends Migration
     public function up()
     {
         if (Schema::hasTable('seat_srp_srp')) {
-            DB::statement('INSERT cryptatech_seat_srp_srp SELECT * FROM seat_srp_srp');
+            DB::statement('INSERT INTO cryptatech_seat_srp_srp' .
+             ' (user_id, character_name, kill_id, kill_token, approved, cost, type_id, ship_type, approver, created_at, updated_at)' . 
+             ' SELECT user_id, character_name, kill_id, kill_token, approved, cost, type_id, ship_type, approver, created_at, updated_at' .
+             ' FROM seat_srp_srp');
         }
 
     }
