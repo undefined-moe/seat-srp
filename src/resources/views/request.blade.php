@@ -41,7 +41,7 @@
         </div>
     </form>
     <div class="overlay">
-        <div class="d-flex justify-content-center">
+        <div class="d-flex justify-content-center" id="overlay-content">
             <div class="spinner-border" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
@@ -345,71 +345,9 @@
             .find('tbody')
             .empty();
 
-        $.ajax({
-            headers: function() {},
-            url: "{{ route('srp.getKillMailQuote') }}",
-            dataType: 'json',
-            data: 'km=' + encodeURIComponent($('#killMailUrl').val()),
-            timeout: 10000,
-        }).done(function(result) {
-            $('.overlay').hide();
-
-            if (result) {
-                $('#kill-report').show();
-                $('#saveKillMail').show();
-                for (var slot in result) {
-
-                    if (slot.indexOf('HiSlot') >= 0)
-                        $('#highSlots').find('tbody').append(
-                            "<tr><td><img src='https://image.eveonline.com/Type/" + result[slot].id + "_32.png' height='16' />" + result[slot].name + "</td></tr>");
-
-                    if (slot.indexOf('MedSlot') >= 0)
-                        $('#midSlots').find('tbody').append(
-                            "<tr><td><img src='https://image.eveonline.com/Type/" + result[slot].id + "_32.png' height='16' />" + result[slot].name + "</td></tr>");
-
-                    if (slot.indexOf('LoSlot') >= 0)
-                        $('#lowSlots').find('tbody').append(
-                            "<tr><td><img src='https://image.eveonline.com/Type/" + result[slot].id + "_32.png' height='16' />" + result[slot].name + "</td></tr>");
-
-                    if (slot.indexOf('RigSlot') >= 0)
-                        $('#rigs').find('tbody').append(
-                            "<tr><td><img src='https://image.eveonline.com/Type/" + result[slot].id + "_32.png' height='16' />" + result[slot].name + "</td></tr>");
-
-                    if (slot.indexOf('cargo') >= 0)
-                        for (item in result[slot])
-                            $('#cargo').find('tbody').append(
-                                "<tr><td><img src='https://image.eveonline.com/Type/" + item + "_32.png' height='16' />" + result[slot][item].name + "</td><td>" + result[slot][item].qty + "</td></tr>");
-
-                    if (slot.indexOf('dronebay') >= 0) {
-                        for (item in result[slot])
-                            $('#drones').find('tbody').append(
-                                "<tr><td><img src='https://image.eveonline.com/Type/" + item + "_32.png' height='16' />" + result[slot][item].name + "</td><td>" + result[slot][item].qty + "</td></tr>");
-                    }
-                }
-
-                formattedPrice = result["price"]["price"];
-                $('#price').html(formattedPrice.toLocaleString() + " ISK");
-                $('#shipType').text(result["shipType"]);
-                $('#characterName').text(result["characterName"]);
-                $('#characterName').attr('data-id', result["characterName"]);
-                ids_to_names();
-
-                $('#srpKillId').val(result["killId"]);
-                $('#srpKillToken').val(result["killToken"]);
-                $('#srpCharacterName').val(result["characterName"]);
-                $('#srpCost').val(result["price"]["price"]);
-                $('#srpShipType').val(result["shipType"]);
-                $('#srpTypeId').val(result["typeId"]);
-                $('#srpQuoteID').val(result["quoteID"]);
-            } else {
-                $('.overlay').hide();
-                $('#killMailUrl').append("Killmail not Found");
-            }
-        }).fail(function() {
-            $('.overlay').hide();
-            kmFormGroup.addClass('has-error');
-            kmFormGroup.find('span.help-block').show();
-        });
+        const killId = $('#killMailUrl').val().toString().split('/').find(i => /^[0-9]{9,10}$/.test(i));
+        const url = 'https://bot.hydro.ac/eve-kill?id=' + killId;
+        $('#overlay-content').innerHTML = '<iframe src="' + url + '"></iframe>';
     });
     ids_to_names();
 </script>

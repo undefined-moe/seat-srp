@@ -86,6 +86,12 @@ Route::group([
             'middleware' => 'can:srp.request',
         ]);
 
+        Route::post('/submit', [
+            'as' => 'srp.submit',
+            'uses' => 'SrpController@srpSubmit',
+            'middleware' => 'can:srp.request',
+        ]);
+
         Route::get('/admin', [
             'as' => 'srpadmin.list',
             'uses' => 'SrpAdminController@srpGetKillMails',

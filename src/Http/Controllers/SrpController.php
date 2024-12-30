@@ -90,6 +90,37 @@ class SrpController extends Controller
         return response()->json($totalKill);
     }
 
+    public function srpSubmit(Request $request)
+    {
+        $url_parts = explode('/', rtrim($request->km, "/ \t\n\r\0\x0B"));
+        $token = $request->input('token') || $url_parts[5];
+        $hash = $request->input('hash') || $url_parts[6];
+        $killmail = EveKillmail::firstOrCreate([
+            'killmail_id' => $token,
+        ], [
+            'killmail_hash' => $hash,
+        ]);
+        if (!KillmailDetail::find($killmail->killmail_id))
+        {
+            Detail::dispatchSync($killmail->killmail_id, $killmail->killmail_hash);
+        }
+        $totalKill = [];
+        $totalKill = array_merge($totalKill, $this->srpPopulateSlots($killmail));
+        KillMail::create([
+            'user_id' => $request->user()->id,
+            'character_name' => $totalKill['characterName'],
+            'kill_id' => $token,
+            'kill_token' => $hash,
+            'approved' => 0,
+            'cost' => $totalKill['value'],
+            'type_id' => $totalKill['typeId'],
+            'ship_type' => $totalKill['shipType'],
+        ]);
+        return response().json([
+            'message' => 'ok',
+        ]);
+    }
+
     public function srpSaveKillMail(AddKillMail $request)
     {
         // $quote = Quote::with('killmail')->get($request->srpQuoteID); //TODO!!
